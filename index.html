@@ -1,1 +1,850 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RG CANAIS - WebTV</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:#0b0b0b;
+      color:#fff;
+    }
+
+    /* ✅ BANNER ULTRA PREMIUM */
+    .banner{
+      width:100%;
+      padding:16px 18px;
+      background: linear-gradient(90deg,#ff2a00 0%,#ff7a00 30%,#7a00ff 70%,#2b00ff 100%);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position: sticky;
+      top:0;
+      z-index:999;
+      box-shadow: 0 18px 30px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .banner::after{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      background: radial-gradient(circle at 20% 0%, rgba(255,255,255,.18), rgba(255,255,255,0) 45%);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      position:relative;
+      z-index:2;
+    }
+    .logoTop{
+      width:56px;
+      height:56px;
+      border-radius:18px;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow: 0 14px 24px rgba(0,0,0,.45), 0 0 22px rgba(255,255,255,.15);
+    }
+    .brandText{ display:flex; flex-direction:column; gap:2px; }
+    .titleRow{ display:flex; align-items:center; gap:10px; }
+
+    .banner h1{
+      margin:0;
+      font-size:26px;
+      letter-spacing:1px;
+      font-weight:900;
+      text-transform: uppercase;
+      text-shadow: 0 10px 22px rgba(0,0,0,.45), 0 0 18px rgba(255,255,255,.12);
+    }
+    .banner small{ opacity:.92; font-size:12px; letter-spacing:.3px; }
+
+    .livePill{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.22);
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      white-space: nowrap;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: 0 10px 18px rgba(0,0,0,.35);
+    }
+    .liveDot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:#ff1b1b;
+      box-shadow: 0 0 14px rgba(255,27,27,.9);
+      animation: pulseLive 1s infinite;
+    }
+    @keyframes pulseLive{
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: .55; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .rightActions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      position:relative;
+      z-index:2;
+    }
+
+    .rightStatus{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.18);
+      padding:9px 14px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      box-shadow: 0 14px 24px rgba(0,0,0,.35);
+      white-space:nowrap;
+    }
+    .dotOnline{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#00ff6a;
+      box-shadow: 0 0 14px rgba(0,255,106,.8);
+    }
+
+    .btnTop{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      color:#fff;
+      font-weight:900;
+      text-decoration:none;
+      font-size:13px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 14px 24px rgba(0,0,0,.35);
+      transition: transform .15s ease, background .15s ease;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btnTop:hover{ transform: translateY(-1px); background: rgba(0,0,0,.32); }
+
+    .btnWhatsapp{
+      background: rgba(37, 211, 102, .18);
+      border: 1px solid rgba(37, 211, 102, .55);
+      box-shadow: 0 14px 24px rgba(0,0,0,.35), 0 0 18px rgba(37, 211, 102, .25);
+    }
+    .btnWhatsapp:hover{ background: rgba(37, 211, 102, .28); }
+
+    /* Layout */
+    .container{
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:12px;
+      padding:12px;
+    }
+    @media(max-width:900px){
+      .container{ grid-template-columns:1fr; }
+    }
+
+    .card{
+      background:#161616;
+      border:1px solid #2a2a2a;
+      border-radius:14px;
+      padding:12px;
+    }
+
+    input, button, textarea{
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid #333;
+      outline:none;
+      font-size:14px;
+      margin-top:8px;
+      background:#111;
+      color:#fff;
+      box-sizing:border-box;
+    }
+
+    button{
+      cursor:pointer;
+      font-weight:bold;
+      background:#2f2f2f;
+    }
+    button:hover{ background:#3a3a3a; }
+
+    .list{
+      max-height: 520px;
+      overflow:auto;
+      margin-top:10px;
+      padding-right:6px;
+      display:none; /* 🔒 trava até login */
+    }
+
+    .item{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius:12px;
+      background:#101010;
+      border:1px solid #262626;
+      margin-bottom:8px;
+      cursor:pointer;
+    }
+    .item:hover{ background:#1b1b1b; }
+    .item span{ font-size:14px; }
+
+    .playerWrap{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      display:none; /* 🔒 trava até login */
+    }
+    video{
+      width:100%;
+      height:520px;
+      background:#000;
+      border-radius:14px;
+      border:1px solid #2a2a2a;
+    }
+    .now{ font-size:14px; opacity:.9; }
+
+    /* Banner rotativo */
+    .adsBox{
+      margin-top:10px;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid #2a2a2a;
+      background:#0f0f0f;
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .adsBox img{
+      width:100%;
+      max-height:120px;
+      object-fit:cover;
+      border-radius:12px;
+      cursor:pointer;
+    }
+
+    .hint{ font-size:12px; opacity:.8; margin-top:6px; }
+    .row{ display:flex; gap:10px; }
+    .row > *{ flex:1; }
+
+    .miniBtn{
+      width:auto;
+      margin-top:8px;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #333;
+      background:#1a1a1a;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .miniBtn:hover{ background:#242424; }
+
+    /* MODAL ADMIN */
+    .modal{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.65);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:16px; z-index:9999;
+    }
+    .modalContent{
+      width:min(920px, 100%);
+      background:#131313;
+      border:1px solid #2a2a2a;
+      border-radius:18px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.7);
+      padding:14px;
+    }
+    .modalHeader{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .modalHeader h2{ margin:0; font-size:16px; }
+    .closeBtn{ width:auto; padding:8px 12px; border-radius:12px; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    @media(max-width:800px){
+      .grid2{ grid-template-columns:1fr; }
+    }
+
+    .danger{
+      background:#3b1414 !important;
+      border: 1px solid rgba(255,0,0,.35) !important;
+    }
+
+    @media(max-width:600px){
+      .banner{ padding:12px 12px; }
+      .logoTop{ width:46px; height:46px; border-radius:15px; }
+      .banner h1{ font-size:18px; }
+      .banner small{ font-size:11px; }
+      .livePill{ display:none; }
+      .rightStatus{ padding:7px 10px; font-size:12px; }
+      .btnTop{ padding:8px 10px; font-size:12px; }
+      video{ height:320px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="banner">
+    <div class="brand">
+      <img src="logo.png" alt="RG CANAIS" class="logoTop" />
+      <div class="brandText">
+        <div class="titleRow">
+          <h1 id="brandTitle">RG CANAIS</h1>
+          <span class="livePill"><span class="liveDot"></span>AO VIVO</span>
+        </div>
+        <small id="brandSubtitle">WebTV Player • Lista M3U • Qualidade HD</small>
+      </div>
+    </div>
+
+    <div class="rightActions">
+      <div class="rightStatus">
+        <span class="dotOnline"></span>
+        <span id="status">Login</span>
+      </div>
+
+      <a class="btnTop btnWhatsapp"
+         id="btnWhatsapp"
+         href="https://wa.me/qr/6E3ECD27ZA7AG1"
+         target="_blank"
+         rel="noopener noreferrer">💬 Suporte</a>
+
+      <button class="btnTop" onclick="abrirAdmin()">⚙️ Admin</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ✅ LOGIN DO USUÁRIO -->
+    <div class="card">
+      <h3 style="margin:0;">🔑 Entrar com DNS / Usuário / Senha</h3>
+
+      <input id="dns" placeholder="DNS/Servidor (ex: http://meuservidor.com)" />
+
+      <div class="row">
+        <input id="user" placeholder="Usuário" />
+
+        <div style="display:flex;gap:8px;">
+          <input id="pass" type="password" placeholder="Senha" style="flex:1;" />
+          <button class="miniBtn" onclick="toggleSenha()" title="Mostrar senha">👁️</button>
+        </div>
+      </div>
+
+      <button onclick="montarECarregar()">Entrar e Carregar Lista</button>
+
+      <div class="hint">
+        ✅ Padrão aceito:
+        <b>get.php?username=USER&password=PASS&type=m3u_plus&output=m3u8</b>
+      </div>
+
+      <input id="busca" placeholder="Buscar canal..." oninput="renderizarLista()" />
+      <div class="list" id="lista"></div>
+
+      <div class="adsBox" id="adsBox">
+        <a id="adsLink" href="#" target="_blank" style="width:100%;">
+          <img id="adsImg" alt="Banner RG CANAIS" />
+        </a>
+      </div>
+    </div>
+
+    <!-- ✅ PLAYER -->
+    <div class="card playerWrap" id="playerArea">
+      <h3 style="margin:0;">▶ Player</h3>
+      <div class="now" id="tocando">Faça login para começar.</div>
+
+      <video id="video" controls autoplay></video>
+      <button onclick="telaCheia()">Tela cheia</button>
+    </div>
+
+  </div>
+
+  <!-- ✅ MODAL ADMIN -->
+  <div class="modal" id="adminModal">
+    <div class="modalContent">
+      <div class="modalHeader">
+        <h2>⚙️ Painel Admin - RG CANAIS</h2>
+        <button class="closeBtn" onclick="fecharAdmin()">Fechar</button>
+      </div>
+
+      <div class="grid2">
+
+        <div class="card">
+          <h3 style="margin:0;">🔐 Login Admin</h3>
+          <input id="adminPass" type="password" placeholder="Senha do Admin" />
+          <button onclick="loginAdmin()">Entrar</button>
+          <div class="hint">Senha padrão: <b>rg123</b></div>
+        </div>
+
+        <div class="card" id="adminPanel" style="display:none;">
+          <h3 style="margin:0;">✅ Configurações</h3>
+
+          <label class="hint">Título do topo</label>
+          <input id="cfgTitle" placeholder="RG CANAIS" />
+
+          <label class="hint">Subtítulo do topo</label>
+          <input id="cfgSubtitle" placeholder="WebTV Player • Lista M3U • Qualidade HD" />
+
+          <label class="hint">Link do WhatsApp</label>
+          <input id="cfgWhatsapp" placeholder="https://wa.me/..." />
+
+          <hr style="border:0;border-top:1px solid #2a2a2a;margin:12px 0;">
+
+          <h3 style="margin:0;">🔒 Segurança (DNS / Usuário / Senha)</h3>
+
+          <label class="hint">DNS/Servidores permitidos (1 por linha)</label>
+          <textarea id="cfgAllowedDomains" rows="5"
+            placeholder="meuservidor.com&#10;iptv.rgcanais.com"></textarea>
+
+          <label class="hint">Exigir usuário e senha fixos (bloquear diferentes)</label>
+          <select id="cfgRequireLogin">
+            <option value="false">Não</option>
+            <option value="true">Sim</option>
+          </select>
+
+          <div class="row">
+            <input id="cfgUser" placeholder="Usuário permitido" />
+            <input id="cfgPass" placeholder="Senha permitida" />
+          </div>
+
+          <button onclick="salvarConfig()">Salvar tudo</button>
+          <button class="danger" onclick="resetarConfig()">Resetar</button>
+        </div>
+
+        <div class="card" id="bannerPanel" style="display:none;">
+          <h3 style="margin:0;">🖼️ Banners Rotativos</h3>
+
+          <label class="hint">Ativar banners</label>
+          <select id="cfgAdsEnabled">
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+          </select>
+
+          <label class="hint">Tempo para trocar (ms)</label>
+          <input id="cfgAdsInterval" type="number" placeholder="5000" />
+
+          <label class="hint">Banners (1 por linha): IMAGEM_URL | LINK_URL</label>
+          <textarea id="cfgAdsList" rows="7"></textarea>
+
+          <button onclick="salvarBanners()">Salvar Banners</button>
+        </div>
+
+        <div class="card" id="senhaPanel" style="display:none;">
+          <h3 style="margin:0;">🔑 Trocar senha Admin</h3>
+          <input id="cfgNewPass" type="password" placeholder="Nova senha" />
+          <button onclick="trocarSenha()">Salvar senha</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+  const DEFAULT_CONFIG = {
+    title: "RG CANAIS",
+    subtitle: "WebTV Player • Lista M3U • Qualidade HD",
+    whatsapp: "https://wa.me/qr/6E3ECD27ZA7AG1",
+    adminPass: "rg123",
+
+    allowedDomains: [],
+    requireLogin: false,
+    loginUser: "",
+    loginPass: "",
+
+    adsEnabled: true,
+    adsInterval: 5000,
+    ads: [
+      { img: "https://via.placeholder.com/900x200.png?text=RG+CANAIS+-+PROMO+1", link: "https://wa.me/qr/6E3ECD27ZA7AG1" },
+      { img: "https://via.placeholder.com/900x200.png?text=RG+CANAIS+-+PROMO+2", link: "https://wa.me/qr/6E3ECD27ZA7AG1" }
+    ]
+  };
+
+  function getConfig(){
+    try{
+      const saved = localStorage.getItem("rg_canais_config");
+      return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : DEFAULT_CONFIG;
+    }catch(e){
+      return DEFAULT_CONFIG;
+    }
+  }
+  function setConfig(cfg){
+    localStorage.setItem("rg_canais_config", JSON.stringify(cfg));
+  }
+
+  /* ✅ lembrar DNS e user do cliente */
+  function saveClientInfo(dns, user){
+    localStorage.setItem("rg_client_dns", dns);
+    localStorage.setItem("rg_client_user", user);
+  }
+  function loadClientInfo(){
+    const dns = localStorage.getItem("rg_client_dns") || "";
+    const user = localStorage.getItem("rg_client_user") || "";
+    document.getElementById("dns").value = dns;
+    document.getElementById("user").value = user;
+  }
+
+  function aplicarConfig(){
+    const cfg = getConfig();
+    document.getElementById("brandTitle").textContent = cfg.title || DEFAULT_CONFIG.title;
+    document.getElementById("brandSubtitle").textContent = cfg.subtitle || DEFAULT_CONFIG.subtitle;
+    document.getElementById("btnWhatsapp").href = cfg.whatsapp || DEFAULT_CONFIG.whatsapp;
+    iniciarBannerRotativo();
+  }
+
+  // ✅ travar áreas até login
+  function liberarSistema(){
+    document.getElementById("lista").style.display = "block";
+    document.getElementById("playerArea").style.display = "flex";
+  }
+
+  // ✅ mostrar / esconder senha
+  function toggleSenha(){
+    const input = document.getElementById("pass");
+    input.type = (input.type === "password") ? "text" : "password";
+  }
+
+  // ✅ ADMIN
+  let adminLogado = false;
+  let timerBanners = null;
+
+  function abrirAdmin(){
+    document.getElementById("adminModal").style.display = "flex";
+    carregarCamposAdmin();
+  }
+  function fecharAdmin(){
+    document.getElementById("adminModal").style.display = "none";
+    document.getElementById("adminPass").value = "";
+  }
+
+  function loginAdmin(){
+    const cfg = getConfig();
+    const senha = document.getElementById("adminPass").value.trim();
+
+    if(senha === cfg.adminPass){
+      adminLogado = true;
+      document.getElementById("adminPanel").style.display = "block";
+      document.getElementById("bannerPanel").style.display = "block";
+      document.getElementById("senhaPanel").style.display = "block";
+      alert("✅ Admin logado!");
+    }else{
+      alert("❌ Senha incorreta!");
+    }
+  }
+
+  function carregarCamposAdmin(){
+    const cfg = getConfig();
+
+    document.getElementById("cfgTitle").value = cfg.title;
+    document.getElementById("cfgSubtitle").value = cfg.subtitle;
+    document.getElementById("cfgWhatsapp").value = cfg.whatsapp;
+
+    document.getElementById("cfgAllowedDomains").value = (cfg.allowedDomains || []).join("\n");
+    document.getElementById("cfgRequireLogin").value = String(cfg.requireLogin);
+    document.getElementById("cfgUser").value = cfg.loginUser || "";
+    document.getElementById("cfgPass").value = cfg.loginPass || "";
+
+    document.getElementById("cfgAdsEnabled").value = String(cfg.adsEnabled);
+    document.getElementById("cfgAdsInterval").value = cfg.adsInterval;
+
+    const txt = (cfg.ads || []).map(a => `${a.img} | ${a.link}`).join("\n");
+    document.getElementById("cfgAdsList").value = txt;
+  }
+
+  function salvarConfig(){
+    if(!adminLogado) return alert("Faça login primeiro!");
+
+    const cfg = getConfig();
+
+    cfg.title = document.getElementById("cfgTitle").value.trim() || DEFAULT_CONFIG.title;
+    cfg.subtitle = document.getElementById("cfgSubtitle").value.trim() || DEFAULT_CONFIG.subtitle;
+    cfg.whatsapp = document.getElementById("cfgWhatsapp").value.trim() || DEFAULT_CONFIG.whatsapp;
+
+    cfg.allowedDomains = document.getElementById("cfgAllowedDomains").value
+      .split("\n").map(l => l.trim()).filter(Boolean);
+
+    cfg.requireLogin = document.getElementById("cfgRequireLogin").value === "true";
+    cfg.loginUser = document.getElementById("cfgUser").value.trim();
+    cfg.loginPass = document.getElementById("cfgPass").value.trim();
+
+    setConfig(cfg);
+    aplicarConfig();
+    alert("✅ Configurações salvas!");
+  }
+
+  function salvarBanners(){
+    if(!adminLogado) return alert("Faça login primeiro!");
+
+    const cfg = getConfig();
+    cfg.adsEnabled = document.getElementById("cfgAdsEnabled").value === "true";
+    cfg.adsInterval = parseInt(document.getElementById("cfgAdsInterval").value || "5000", 10);
+
+    const linhas = document.getElementById("cfgAdsList").value
+      .split("\n").map(l => l.trim()).filter(Boolean);
+
+    const novos = [];
+    for(const l of linhas){
+      const parts = l.split("|").map(p => p.trim());
+      if(parts.length >= 2){
+        novos.push({ img: parts[0], link: parts[1] });
+      }
+    }
+
+    if(novos.length === 0 && cfg.adsEnabled){
+      return alert("❌ Coloque pelo menos 1 banner no formato IMAGEM_URL | LINK_URL");
+    }
+
+    cfg.ads = novos.length ? novos : DEFAULT_CONFIG.ads;
+
+    setConfig(cfg);
+    iniciarBannerRotativo();
+    alert("✅ Banners salvos!");
+  }
+
+  function trocarSenha(){
+    if(!adminLogado) return alert("Faça login primeiro!");
+    const nova = document.getElementById("cfgNewPass").value.trim();
+    if(nova.length < 3) return alert("❌ Senha muito curta!");
+
+    const cfg = getConfig();
+    cfg.adminPass = nova;
+    setConfig(cfg);
+
+    document.getElementById("cfgNewPass").value = "";
+    alert("✅ Senha alterada!");
+  }
+
+  function resetarConfig(){
+    if(!adminLogado) return alert("Faça login primeiro!");
+    if(!confirm("Tem certeza que deseja resetar tudo?")) return;
+
+    localStorage.removeItem("rg_canais_config");
+    adminLogado = false;
+
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("bannerPanel").style.display = "none";
+    document.getElementById("senhaPanel").style.display = "none";
+
+    aplicarConfig();
+    carregarCamposAdmin();
+    alert("✅ Resetado!");
+  }
+
+  // ✅ BANNERS
+  let bannerIndex = 0;
+
+  function iniciarBannerRotativo(){
+    const cfg = getConfig();
+    const adsBox = document.getElementById("adsBox");
+
+    if(!cfg.adsEnabled){
+      adsBox.style.display = "none";
+      if(timerBanners) clearInterval(timerBanners);
+      timerBanners = null;
+      return;
+    }
+
+    const ads = cfg.ads && cfg.ads.length ? cfg.ads : DEFAULT_CONFIG.ads;
+
+    adsBox.style.display = ads.length ? "flex" : "none";
+    if(!ads.length) return;
+
+    if(timerBanners) clearInterval(timerBanners);
+
+    bannerIndex = 0;
+    trocarBanner();
+
+    timerBanners = setInterval(trocarBanner, cfg.adsInterval || 5000);
+  }
+
+  function trocarBanner(){
+    const cfg = getConfig();
+    const ads = cfg.ads && cfg.ads.length ? cfg.ads : DEFAULT_CONFIG.ads;
+    const b = ads[bannerIndex];
+
+    document.getElementById("adsImg").src = b.img;
+    document.getElementById("adsLink").href = b.link;
+
+    bannerIndex++;
+    if(bannerIndex >= ads.length) bannerIndex = 0;
+  }
+
+  // ✅ LOGIN CLIENTE
+  let canais = [];
+
+  function normalizarServidor(dns){
+    dns = dns.trim();
+    if(!dns) return "";
+    if(!dns.startsWith("http://") && !dns.startsWith("https://")){
+      dns = "http://" + dns;
+    }
+    return dns.replace(/\/+$/, "");
+  }
+
+  function validarDominioPermitido(servidor){
+    const cfg = getConfig();
+    if(!cfg.allowedDomains || cfg.allowedDomains.length === 0) return true;
+
+    try{
+      const host = new URL(servidor).hostname;
+      return cfg.allowedDomains.some(d => host.includes(d));
+    }catch(e){
+      return false;
+    }
+  }
+
+  async function montarECarregar(){
+    const cfg = getConfig();
+
+    const dns = normalizarServidor(document.getElementById("dns").value);
+    const user = document.getElementById("user").value.trim();
+    const pass = document.getElementById("pass").value.trim();
+
+    if(!dns || !user || !pass){
+      alert("Preencha DNS, Usuário e Senha!");
+      return;
+    }
+
+    if(!validarDominioPermitido(dns)){
+      alert("❌ DNS/Servidor não autorizado!");
+      document.getElementById("status").textContent = "Bloqueado";
+      return;
+    }
+
+    if(cfg.requireLogin){
+      if(user !== cfg.loginUser || pass !== cfg.loginPass){
+        alert("❌ Usuário ou senha inválidos!");
+        document.getElementById("status").textContent = "Negado";
+        return;
+      }
+    }
+
+    saveClientInfo(dns, user);
+
+    const urlM3U = `${dns}/get.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&type=m3u_plus&output=m3u8`;
+
+    await carregarListaPorURL(urlM3U);
+  }
+
+  async function carregarListaPorURL(url){
+    document.getElementById("status").textContent = "Carregando...";
+
+    try{
+      const res = await fetch(url);
+      const texto = await res.text();
+
+      canais = parseM3U(texto);
+      renderizarLista();
+
+      liberarSistema();
+      document.getElementById("status").textContent = "OK (" + canais.length + ")";
+      document.getElementById("tocando").textContent = "Selecione um canal na lista.";
+    }catch(e){
+      console.error(e);
+      document.getElementById("status").textContent = "Erro";
+      alert("Erro ao carregar lista. Pode ser bloqueio CORS do servidor.");
+    }
+  }
+
+  function parseM3U(texto){
+    const linhas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+    const lista = [];
+
+    for(let i=0; i<linhas.length; i++){
+      if(linhas[i].startsWith("#EXTINF")){
+        const nome = linhas[i].split(",").pop()?.trim() || "Canal";
+        const link = linhas[i+1]?.trim();
+        if(link && !link.startsWith("#")){
+          lista.push({ nome, link });
+        }
+      }
+    }
+    return lista;
+  }
+
+  function renderizarLista(){
+    const busca = document.getElementById("busca").value.toLowerCase();
+    const ul = document.getElementById("lista");
+    ul.innerHTML = "";
+
+    const filtrados = canais.filter(c => c.nome.toLowerCase().includes(busca));
+
+    filtrados.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `<span>📡 ${c.nome}</span>`;
+      div.onclick = () => tocarCanal(c.nome, c.link);
+      ul.appendChild(div);
+    });
+  }
+
+  // ✅ PLAYER HLS
+  let hls;
+
+  function tocarCanal(nome, url){
+    document.getElementById("tocando").textContent = "Tocando agora: " + nome;
+
+    const video = document.getElementById("video");
+
+    if(hls){
+      hls.destroy();
+      hls = null;
+    }
+
+    if(url.includes(".m3u8")){
+      if(Hls.isSupported()){
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      }else if(video.canPlayType("application/vnd.apple.mpegurl")){
+        video.src = url;
+      }else{
+        alert("Seu navegador não suporta HLS.");
+      }
+    }else{
+      video.src = url;
+    }
+
+    video.play().catch(()=>{});
+  }
+
+  function telaCheia(){
+    const video = document.getElementById("video");
+    if(video.requestFullscreen) video.requestFullscreen();
+  }
+
+  aplicarConfig();
+  loadClientInfo();
+</script>
+
+</body>
+</html>
 
